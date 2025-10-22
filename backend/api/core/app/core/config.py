@@ -4,7 +4,8 @@ class Settings(BaseSettings):
     DB_URI: str
     DB_NAME: str
     DB_USER_COLLECTION: str
-    
+    DB_LOGS_COLLECTION: str
+
     #Security
     JWT_ALGORITHM: str
     SECRET_KEY: str
@@ -12,3 +13,10 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 settings = Settings()
+
+# {
+#     "type" : "cornel@gmail.com" ,
+#     "timestamp" : "30.01.2025" ,
+#     "user" : "Liviu" ,
+#     "activity" : "register"
+# }

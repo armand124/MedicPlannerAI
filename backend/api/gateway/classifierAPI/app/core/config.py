@@ -3,8 +3,7 @@ class Settings(BaseSettings):
     #Database
     DB_URI: str
     DB_NAME: str
-    DB_USER_COLLECTION: str
-    DB_LOGS_COLLECTION: str
+    DB_MODEL_PATH_COLLECTION : str
 
     #Security
     JWT_ALGORITHM: str
@@ -13,4 +12,3 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 settings = Settings()
-

@@ -1,0 +1,7 @@
+pydantic
+pydantic_settings
+fastapi
+uvicorn
+pymongo
+pyjwt
+joblib

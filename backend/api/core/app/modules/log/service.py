@@ -12,7 +12,7 @@ class LogService:
         
         return await LogRepository.get_logs()
 
-
+    
     @staticmethod
     async def insert_log(entry : LogEntry , current_user : dict):
         try:
@@ -20,12 +20,3 @@ class LogService:
             return {"success" : 1}
         except Exception:
              raise HTTPException(500, "There was a problem at the registration process")
-
-        
-                
-#     {
-#     "type" : "cornel@gmail.com" ,
-#     "timestamp" : "30.01.2026" ,
-#     "activity" : "register",
-#     "user" : "Liviu"
-# }

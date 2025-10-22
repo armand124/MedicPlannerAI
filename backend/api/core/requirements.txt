@@ -2,3 +2,6 @@ uvicorn
 fastapi[standard]
 pymongo[srv]
 pydantic
+pydantic_settings
+jwt
+passlib[bcrypt]

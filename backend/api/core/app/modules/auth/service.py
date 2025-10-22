@@ -33,21 +33,21 @@ def decode_token(token : str) -> dict:
 
 class AuthService:
     @staticmethod
-    async def register_user(email : str, password : str, first_name : str, last_name : str):
+    async def register_user(email : str, password : str, first_name : str, last_name : str , role : str , specialization : str):
         result = await AuthRepository.search_user_by_email(email)
         if result:
             raise HTTPException(400, "There is already an account registered with this email")
 
         password = hash_password(password)
         
-        #try:
-        await AuthRepository.insert_user(email, password, first_name, last_name)
-        token = create_access_token(
-                {"email" : email, "first_name" : first_name, "last_name" : last_name},
-                                         timedelta(days=2))
-        return {"message" : "User succesfully registered", "access_token" : token}
-        #except Exception:
-           #raise HTTPException(500, "There was a problem at the registration process")
+        try:
+            await AuthRepository.insert_user(email, password, first_name, last_name , role , specialization)
+            token = create_access_token(
+                    {"email" : email, "first_name" : first_name, "last_name" : last_name , "role" : role , "specialization" : specialization},
+                                            timedelta(days=2))
+            return {"message" : "User succesfully registered", "access_token" : token}
+        except Exception:
+           raise HTTPException(500, "There was a problem at the registration process")
 
     @staticmethod
     async def login_user(email : str, password : str):
@@ -59,7 +59,7 @@ class AuthService:
         try:
             if verify_password(password, hashed_password):
                 token = create_access_token(
-                    { "email" : email, "first_name" : result["first_name"], "last_name" : result["last_name"]},
+                    { "email" : email, "first_name" : result["first_name"], "last_name" : result["last_name"] , "role" : result["role"] , "specialization" : result["specialization"]},
                     timedelta(days = 2))
                 return {"message" : "User succesfully logged in", "acces_token" : token}
         except Exception:

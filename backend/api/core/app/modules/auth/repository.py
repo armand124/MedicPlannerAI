@@ -8,12 +8,14 @@ class AuthRepository:
         return usr
     
     @staticmethod
-    async def insert_user(email : str, password : str, first_name : str, last_name : str):
+    async def insert_user(email : str, password : str, first_name : str, last_name : str , role : str , specialization : str):
         col = Database.db[settings.DB_USER_COLLECTION]
         result = await col.insert_one({
             "email" : email,
             "password" : password,
             "first_name" : first_name,
-            "last_name" : last_name
+            "last_name" : last_name , 
+            "role" : role , 
+            "specialization" : specialization
         })
         return result.inserted_id

@@ -4,6 +4,8 @@ class UserRegistrationRequest(BaseModel):
     password : str
     first_name : str
     last_name : str
+    role : str 
+    specialization : str
 
 class UserLoginRequest(BaseModel):
     email : str

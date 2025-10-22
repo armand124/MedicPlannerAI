@@ -11,4 +11,8 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
 
+<<<<<<< Updated upstream
 settings = Settings()
+=======
+settings = Settings()
+>>>>>>> Stashed changes

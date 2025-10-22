@@ -1,4 +1,4 @@
-from models.prediction_models import PredictionModels
+from app.models.prediction_models import PredictionModels
 from fastapi import HTTPException
 
 class PredictionService:

@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
-from modules.prediction.model import FormResponse
-from security.security import get_current_user
-from modules.prediction.service import PredictionService
+from app.modules.prediction.model import FormResponse
+from app.security.security import get_current_user
+from app.modules.prediction.service import PredictionService
 
 router = APIRouter()
 
-@router.get(
+@router.post(
     "/get-results/{model_id}"
 )
 async def get_prediction_results(form : FormResponse, usr : dict = Depends(get_current_user)):

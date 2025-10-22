@@ -1,5 +1,6 @@
-from core.db import Database
-from core.config import settings
+from ..core.db import Database
+from ..core.config import settings
+
 import joblib
 import asyncio
 
@@ -13,7 +14,7 @@ class PredictionModels:
         cursor = col.find()
         async for model in cursor:
             try:
-                model_path = model.get("path")
+                model_path = model.get("name")
                 model_id = model.get("model_id")
                 if not model_path or not model_id:
                     continue

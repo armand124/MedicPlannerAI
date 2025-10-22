@@ -1,0 +1,6 @@
+tensorflow
+pandas
+kagglehub
+numpy
+scikit-learn
+matplotlib

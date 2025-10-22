@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
 
+<<<<<<< Updated upstream
 settings = Settings()
 
 # {
@@ -20,3 +21,6 @@ settings = Settings()
 #     "user" : "Liviu" ,
 #     "activity" : "register"
 # }
+=======
+settings = Settings()
+>>>>>>> Stashed changes

@@ -20,7 +20,7 @@ class PredictionModels:
                     continue
 
                 loop = asyncio.get_running_loop()
-                loaded_model = await loop.run_in_executor(None, joblib.load, model_path)
+                loaded_model = await loop.run_in_executor(None, joblib.load, f'app/models/{model_path}')
 
                 PredictionModels.loaded_models[model_id] = loaded_model
             except Exception as e:

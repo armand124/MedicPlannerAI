@@ -5,7 +5,7 @@ class PredictionService:
     @staticmethod
     async def get_prediction_result(model_id, features):
         model = PredictionModels.loaded_models.get(model_id)
-        
+        print(model_id)
         if model is None:
             raise HTTPException(404, "Model not found!")
 
@@ -24,5 +24,5 @@ class PredictionService:
             predicted_status = "High"
         else:
             predicted_status = "Medium"
-        
         return {"Status" : predicted_status}
+       

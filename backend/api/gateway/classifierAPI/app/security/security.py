@@ -9,11 +9,9 @@ def decode_token(token : str) -> dict:
     info = jwt.decode(token, settings.SECRET_KEY, settings.JWT_ALGORITHM)
     return info
 
-@staticmethod
-async def get_current_user(credentials : HTTPAuthorizationCredentials = Depends(security)):
+def get_current_user(credentials : HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
     try:
         user_info = decode_token(token)
-        return user_info
     except Exception:
         raise HTTPException(401, "Invalid token!")

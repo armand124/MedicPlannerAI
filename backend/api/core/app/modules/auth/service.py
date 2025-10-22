@@ -61,7 +61,7 @@ class AuthService:
                 token = create_access_token(
                     { "email" : email, "first_name" : result["first_name"], "last_name" : result["last_name"] , "role" : result["role"] , "specialization" : result["specialization"]},
                     timedelta(days = 2))
-                return {"message" : "User succesfully logged in", "acces_token" : token}
+                return {"message" : "User succesfully logged in", "access_token" : token}
         except Exception:
             raise HTTPException(500, "There was a problem in the logging process")    
         raise HTTPException(400, "Invalid password!")

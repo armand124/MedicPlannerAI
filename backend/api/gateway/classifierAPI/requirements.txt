@@ -5,3 +5,10 @@ uvicorn
 pymongo
 pyjwt
 joblib
+tensorflow
+pandas
+kagglehub
+numpy
+scikit-learn
+joblib
+matplotlib

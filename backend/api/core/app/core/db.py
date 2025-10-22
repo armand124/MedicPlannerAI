@@ -8,7 +8,7 @@ class Database:
     async def connectToDatabase() -> None:
         Database.client = AsyncMongoClient(settings.DB_URI)
         Database.db = Database.client[settings.DB_NAME]
-        
+        col = Database.db['users']
 
     @staticmethod
     async def disconnectFromDatabase() -> None:

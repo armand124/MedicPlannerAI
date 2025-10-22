@@ -6,7 +6,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.modules.auth.repository import AuthRepository
 from passlib.context import CryptContext
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 security = HTTPBearer()
 
 def hash_password(password: str) -> str:
@@ -40,14 +40,14 @@ class AuthService:
 
         password = hash_password(password)
         
-        try:
-            await AuthRepository.insert_user(email, password, first_name, last_name)
-            token = create_access_token(
+        #try:
+        await AuthRepository.insert_user(email, password, first_name, last_name)
+        token = create_access_token(
                 {"email" : email, "first_name" : first_name, "last_name" : last_name},
                                          timedelta(days=2))
-            return {"message" : "User succesfully registered", "access_token" : token}
-        except Exception:
-            raise HTTPException(500, "There was a problem at the registration process")
+        return {"message" : "User succesfully registered", "access_token" : token}
+        #except Exception:
+           #raise HTTPException(500, "There was a problem at the registration process")
 
     @staticmethod
     async def login_user(email : str, password : str):

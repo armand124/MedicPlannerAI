@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole, AuthContextType } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { authApi, ApiError } from '@/lib/api';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -10,37 +11,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check for stored user on mount
-    const storedUser = localStorage.getItem('medical_planner_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    // Check for stored user and token on mount
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('medical_planner_token');
+      const storedUser = localStorage.getItem('medical_planner_user');
+      
+      if (token && storedUser) {
+        try {
+          // Verify token with server
+          const userData = await authApi.verify();
+          setUser(userData.user);
+        } catch (error) {
+          // Token is invalid or network error, clear stored data
+          localStorage.removeItem('medical_planner_token');
+          localStorage.removeItem('medical_planner_user');
+        }
+      }
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // TODO: Replace with actual MongoDB API call
-      // For now, simulate with localStorage
-      const users = JSON.parse(localStorage.getItem('medical_planner_users') || '[]');
-      const foundUser = users.find((u: User) => u.email === email);
-      
-      if (!foundUser) {
-        throw new Error('Invalid credentials');
-      }
+      const data = await authApi.login(email, password);
 
-      setUser(foundUser);
-      localStorage.setItem('medical_planner_user', JSON.stringify(foundUser));
+      // Store token and user data
+      localStorage.setItem('medical_planner_token', data.token);
+      localStorage.setItem('medical_planner_user', JSON.stringify(data.user));
+      setUser(data.user);
       
       toast({
         title: 'Login successful',
-        description: `Welcome back, ${foundUser.name}!`,
+        description: `Welcome back, ${data.user.name}!`,
       });
     } catch (error) {
+      const errorMessage = error instanceof ApiError ? error.message : 'Invalid credentials';
       toast({
         title: 'Login failed',
-        description: error instanceof Error ? error.message : 'Invalid credentials',
+        description: errorMessage,
         variant: 'destructive',
       });
       throw error;
@@ -52,36 +63,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (email: string, password: string, name: string, role: UserRole) => {
     setIsLoading(true);
     try {
-      // TODO: Replace with actual MongoDB API call
-      const users = JSON.parse(localStorage.getItem('medical_planner_users') || '[]');
-      
-      if (users.find((u: User) => u.email === email)) {
-        throw new Error('User already exists');
-      }
+      const data = await authApi.register(email, password, name, role);
 
-      const newUser: User = {
-        _id: `user_${Date.now()}`,
-        email,
-        name,
-        role,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      users.push(newUser);
-      localStorage.setItem('medical_planner_users', JSON.stringify(users));
-      
-      setUser(newUser);
-      localStorage.setItem('medical_planner_user', JSON.stringify(newUser));
+      // Store token and user data
+      localStorage.setItem('medical_planner_token', data.token);
+      localStorage.setItem('medical_planner_user', JSON.stringify(data.user));
+      setUser(data.user);
       
       toast({
         title: 'Account created',
         description: 'Your account has been created successfully!',
       });
     } catch (error) {
+      const errorMessage = error instanceof ApiError ? error.message : 'Failed to create account';
       toast({
         title: 'Signup failed',
-        description: error instanceof Error ? error.message : 'Failed to create account',
+        description: errorMessage,
         variant: 'destructive',
       });
       throw error;
@@ -90,13 +87,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('medical_planner_user');
-    toast({
-      title: 'Logged out',
-      description: 'You have been logged out successfully.',
-    });
+  const logout = async () => {
+    try {
+      // Call logout endpoint to invalidate token on server
+      await authApi.logout();
+    } catch (error) {
+      // Even if server logout fails, we should still clear local data
+      console.error('Logout error:', error);
+    } finally {
+      // Clear local storage and state
+      setUser(null);
+      localStorage.removeItem('medical_planner_token');
+      localStorage.removeItem('medical_planner_user');
+      
+      toast({
+        title: 'Logged out',
+        description: 'You have been logged out successfully.',
+      });
+    }
   };
 
   return (

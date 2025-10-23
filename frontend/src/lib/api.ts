@@ -1,0 +1,114 @@
+// API utility functions for making authenticated requests
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+export interface ApiResponse<T = any> {
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
+export class ApiError extends Error {
+  statusCode: number;
+  
+  constructor(message: string, statusCode: number = 500) {
+    super(message);
+    this.name = 'ApiError';
+    this.statusCode = statusCode;
+  }
+}
+
+// Get auth token from localStorage
+const getAuthToken = (): string | null => {
+  return localStorage.getItem('medical_planner_token');
+};
+
+// Make authenticated API request
+export const apiRequest = async <T = any>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> => {
+  const token = getAuthToken();
+  
+  const config: RequestInit = {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers,
+    },
+  };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new ApiError(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+        response.status
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    
+    // Network or other errors
+    throw new ApiError(
+      error instanceof Error ? error.message : 'Network error occurred',
+      0
+    );
+  }
+};
+
+// Auth-specific API functions
+export const authApi = {
+  login: async (email: string, password: string) => {
+    return apiRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  },
+
+  register: async (email: string, password: string, name: string, role: string) => {
+    return apiRequest('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, name, role }),
+    });
+  },
+
+  verify: async () => {
+    return apiRequest('/auth/verify');
+  },
+
+  logout: async () => {
+    return apiRequest('/auth/logout', {
+      method: 'POST',
+    });
+  },
+};
+
+// Generic API functions for other endpoints
+export const api = {
+  get: <T = any>(endpoint: string) => apiRequest<T>(endpoint),
+  
+  post: <T = any>(endpoint: string, data?: any) => 
+    apiRequest<T>(endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    }),
+  
+  put: <T = any>(endpoint: string, data?: any) => 
+    apiRequest<T>(endpoint, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    }),
+  
+  delete: <T = any>(endpoint: string) => 
+    apiRequest<T>(endpoint, {
+      method: 'DELETE',
+    }),
+};

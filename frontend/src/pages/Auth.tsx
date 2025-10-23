@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,14 +12,24 @@ import { Link } from 'react-router-dom';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<UserRole>('patient');
-  const { login, signup, isLoading } = useAuth();
+  const { login, signup, isLoading, user } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      const from = location.state?.from?.pathname || '/';
+      const redirectTo = from === '/' ? (user.role === 'doctor' ? '/doctor' : '/patient') : from;
+      navigate(redirectTo, { replace: true });
+    }
+  }, [user, navigate, location.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,12 +41,8 @@ const Auth = () => {
         await signup(email, password, name, role);
       }
       
-      // Navigate based on role
-      if (role === 'doctor') {
-        navigate('/doctor');
-      } else {
-        navigate('/patient');
-      }
+      // Navigation will be handled by the useEffect above
+      // since the user state will be updated after successful auth
     } catch (error) {
       // Error is handled in the context
     }

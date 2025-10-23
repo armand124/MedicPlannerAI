@@ -57,6 +57,43 @@ export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string, role: UserRole) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
+}
+
+// Questionnaire types for specialization-driven dynamic forms
+export interface QuestionnaireQuestion {
+  questionId: number;
+  question: string;
+  hasOptions: boolean;
+  options?: string[];
+  value?: string; // type hint (e.g., "number"), we keep answer separately
+}
+
+export interface QuestionnaireSpec {
+  specialization: string;
+  questions: QuestionnaireQuestion[];
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  name: string;
+  role: UserRole;
+}
+
+export interface AuthResponse {
+  user: User;
+  token: string;
+  message?: string;
+}
+
+export interface ApiError {
+  message: string;
+  statusCode?: number;
 }

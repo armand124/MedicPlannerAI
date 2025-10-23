@@ -10,10 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useDoctors } from '@/hooks/useDoctors';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
-<<<<<<< Updated upstream
 import type { QuestionnaireSpec } from '@/types';
-=======
->>>>>>> Stashed changes
 import { Calendar, Clock, FileText, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -90,7 +87,7 @@ const PatientDashboard = () => {
       
       await createAppointment({
         patientId: user?._id || '',
-        patientName: user?.name || '',
+        patientName: user?.fName || '',
         patientEmail: user?.email || '',
         patientPhone: formData.phone,
         doctorId: selectedDoctor._id,
@@ -135,7 +132,7 @@ const PatientDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
-            Welcome, {user?.name}
+            Welcome, {user?.fName}
           </h1>
           <p className="text-muted-foreground">
             Manage your appointments and medical records
@@ -162,99 +159,6 @@ const PatientDashboard = () => {
                 </div>
               </CardHeader>
               
-<<<<<<< Updated upstream
-              {showForm && (
-                <CardContent>
-                  {doctorsLoading ? (
-                    <div className="flex justify-center py-8">
-                      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Specialization select */}
-                    <div className="space-y-2">
-                      <Label htmlFor="specialization">Specialization</Label>
-                      <Select
-                        value={selectedSpecialization}
-                        onValueChange={(value) => {
-                          setSelectedSpecialization(value);
-                          setAnswers({});
-                          if (value) fetchSpec(value);
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select specialization" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {specializations.map((s) => (
-                            <SelectItem key={s} value={s}>{s}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Dynamic questionnaire fields */}
-                    {selectedSpecialization && (
-                      specLoading ? (
-                        <div className="flex justify-center py-4">
-                          <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                        </div>
-                      ) : spec ? (
-                        <div className="space-y-4">
-                          {spec.questions.map(q => (
-                            <div key={q.questionId} className="space-y-2">
-                              <Label>{q.question}</Label>
-                              {q.hasOptions && q.options ? (
-                                <Select
-                                  value={answers[q.questionId] ?? ''}
-                                  onValueChange={(val) => setAnswers(prev => ({ ...prev, [q.questionId]: val }))}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select an option" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {q.options.map((opt, idx) => (
-                                      <SelectItem key={`${q.questionId}-${idx}`} value={opt}>{opt}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              ) : (
-                                <Input
-                                  value={answers[q.questionId] ?? ''}
-                                  onChange={(e) => setAnswers(prev => ({ ...prev, [q.questionId]: e.target.value }))}
-                                  required
-                                  placeholder={q.value === 'number' ? 'Enter a number or text' : 'Enter your answer'}
-                                />
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      ) : null
-                    )}
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="date">Preferred Date</Label>
-                        <Input
-                          id="date"
-                          type="date"
-                          value={formData.date}
-                          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                          required
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="time">Preferred Time</Label>
-                        <Input
-                          id="time"
-                          type="time"
-                          value={formData.time}
-                          onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-=======
                {showForm && (
                  <CardContent>
                    {doctorsLoading ? (
@@ -284,7 +188,6 @@ const PatientDashboard = () => {
                          </SelectContent>
                        </Select>
                      </div>
->>>>>>> Stashed changes
 
                      {/* Dynamic questionnaire fields */}
                      {selectedSpecialization && (
@@ -361,15 +264,6 @@ const PatientDashboard = () => {
                        />
                      </div>
 
-<<<<<<< Updated upstream
-                    <Button type="submit" className="w-full">
-                      Submit Request
-                    </Button>
-                    </form>
-                  )}
-                </CardContent>
-              )}
-=======
                      <div className="space-y-2">
                        <Label htmlFor="reason">Reason for Visit</Label>
                        <Input
@@ -399,7 +293,6 @@ const PatientDashboard = () => {
                    )}
                  </CardContent>
                )}
->>>>>>> Stashed changes
             </Card>
 
             {/* Appointments History */}

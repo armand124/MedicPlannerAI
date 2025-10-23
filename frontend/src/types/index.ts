@@ -1,33 +1,12 @@
-// MongoDB-compatible types for the medical planner
-
 export type UserRole = 'patient' | 'doctor';
 
 export interface User {
   _id: string;
   email: string;
-  name: string;
+  fName: string;
+  lName: string;
   role: UserRole;
-  phone?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Patient extends User {
-  role: 'patient';
-  dateOfBirth?: Date;
-  address?: string;
-  medicalHistory?: string[];
-}
-
-export interface Doctor extends User {
-  role: 'doctor';
   specialization: string;
-  licenseNumber: string;
-  availability?: {
-    day: string;
-    startTime: string;
-    endTime: string;
-  }[];
 }
 
 export type AppointmentStatus = 'scheduled' | 'completed' | 'cancelled' | 'no-show';
@@ -56,7 +35,7 @@ export interface Appointment {
 export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name: string, role: UserRole) => Promise<void>;
+  signup: (email: string, password: string, first_name: string, last_name: string, role: UserRole, specialization: string) => Promise<void>;
   logout: () => Promise<void>;
   isLoading: boolean;
 }
@@ -66,8 +45,8 @@ export interface QuestionnaireQuestion {
   questionId: number;
   question: string;
   hasOptions: boolean;
-  options?: string[];
-  value?: string; // type hint (e.g., "number"), we keep answer separately
+  options: string[];
+  value: string; // type hint (e.g., "number"), we keep answer separately
 }
 
 export interface QuestionnaireSpec {
@@ -83,14 +62,16 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  name: string;
+  fName: string;
+  lName: string;
   role: UserRole;
+  specialization: string;
 }
 
 export interface AuthResponse {
-  user: User;
-  token: string;
-  message?: string;
+  message: string;
+  access_token: string;
+  name: string;
 }
 
 export interface ApiError {

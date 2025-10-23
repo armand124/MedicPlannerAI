@@ -60,10 +60,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (email: string, password: string, name: string, role: UserRole) => {
+  const signup = async (email: string, password: string, first_name: string, last_name: string, role: UserRole, specialization: string) => {
     setIsLoading(true);
     try {
-      const data = await authApi.register(email, password, name, role);
+      const data = await authApi.register(email, password, first_name, last_name, role, specialization);
 
       // Store token and user data
       localStorage.setItem('medical_planner_token', data.token);

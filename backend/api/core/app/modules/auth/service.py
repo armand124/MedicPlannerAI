@@ -49,6 +49,7 @@ class AuthService:
         except Exception:
            raise HTTPException(500, "There was a problem at the registration process")
 
+
     @staticmethod
     async def login_user(email : str, password : str):
         result = await AuthRepository.search_user_by_email(email)

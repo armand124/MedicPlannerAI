@@ -59,7 +59,7 @@ const DoctorDashboard = () => {
               Doctor Dashboard
             </h1>
             <p className="text-muted-foreground">
-              Welcome back, {user?.name}
+              Welcome back, {user?.fName}
             </p>
           </div>
           

@@ -67,16 +67,16 @@ export const apiRequest = async <T = any>(
 // Auth-specific API functions
 export const authApi = {
   login: async (email: string, password: string) => {
-    return apiRequest('/auth/login', {
+    return apiRequest('/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
   },
 
-  register: async (email: string, password: string, name: string, role: string) => {
-    return apiRequest('/auth/register', {
+  register: async (email: string, password: string, first_name: string, last_name: string, role: string, specialization: string) => {
+    return apiRequest('/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, name, role }),
+      body: JSON.stringify({ email, password, first_name, last_name, role, "specialization": "test" }),
     });
   },
 

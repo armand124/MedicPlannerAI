@@ -29,8 +29,3 @@ export const useQuestionnaire = () => {
 
   return { spec, isLoading, fetchSpec };
 };
-<<<<<<< Updated upstream
-
-
-=======
->>>>>>> Stashed changes

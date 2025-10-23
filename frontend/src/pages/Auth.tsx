@@ -17,7 +17,9 @@ const Auth = () => {
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [fName, setFName] = useState('');
+  const [lName, setLName] = useState('');
+  const [specialization, setSpecialization] = useState('');
   const [role, setRole] = useState<UserRole>('patient');
   const { login, signup, isLoading, user } = useAuth();
   const navigate = useNavigate();
@@ -38,7 +40,7 @@ const Auth = () => {
       if (mode === 'login') {
         await login(email, password);
       } else {
-        await signup(email, password, name, role);
+        await signup(email, password, fName, lName, role, specialization);
       }
       
       // Navigation will be handled by the useEffect above
@@ -78,13 +80,25 @@ const Auth = () => {
               {mode === 'signup' && (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
+                    <Label htmlFor="fName">First Name</Label>
                     <Input
-                      id="name"
+                      id="fName"
                       type="text"
-                      placeholder="Dr. John Doe"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      placeholder="John"
+                      value={fName}
+                      onChange={(e) => setFName(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="lName">Last Name</Label>
+                    <Input
+                      id="lName"
+                      type="text"
+                      placeholder="Doe"
+                      value={lName}
+                      onChange={(e) => setLName(e.target.value)}
                       required
                     />
                   </div>

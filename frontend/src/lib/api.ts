@@ -73,10 +73,17 @@ export const authApi = {
     });
   },
 
-  register: async (email: string, password: string, first_name: string, last_name: string, role: string, specialization: string) => {
-    return apiRequest('/register', {
+  register_medic: async (email: string, password: string, first_name: string, last_name: string, specialization: string) => {
+    return apiRequest('/register-medic', {
       method: 'POST',
-      body: JSON.stringify({ email, password, first_name, last_name, role, "specialization": "test" }),
+      body: JSON.stringify({ email, password, first_name, last_name, specialization}),
+    });
+  },
+
+  register_pacient: async (email: string, password: string, first_name: string, last_name: string) => {
+    return apiRequest('/register-pacient', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, first_name, last_name}),
     });
   },
 

@@ -1,11 +1,16 @@
 from pydantic import BaseModel
-class UserRegistrationRequest(BaseModel):
+class MedicRegistrationRequest(BaseModel):
     email : str
     password : str
     first_name : str
     last_name : str
-    role : str 
     specialization : str
+
+class PacientRegistrationRequest(BaseModel):
+    email : str
+    password : str
+    first_name : str
+    last_name : str
 
 class UserLoginRequest(BaseModel):
     email : str

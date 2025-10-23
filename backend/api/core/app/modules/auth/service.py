@@ -33,7 +33,7 @@ def decode_token(token : str) -> dict:
 
 class AuthService:
     @staticmethod
-    async def register_user(email : str, password : str, first_name : str, last_name : str , role : str , specialization : str):
+    async def register_medic(email : str, password : str, first_name : str, last_name : str , role : str , specialization : str):
         result = await AuthRepository.search_user_by_email(email)
         if result:
             raise HTTPException(400, "There is already an account registered with this email")
@@ -44,6 +44,23 @@ class AuthService:
             await AuthRepository.insert_user(email, password, first_name, last_name , role , specialization)
             token = create_access_token(
                     {"email" : email, "first_name" : first_name, "last_name" : last_name , "role" : role , "specialization" : specialization},
+                                            timedelta(days=2))
+            return {"message" : "User succesfully registered", "access_token" : token}
+        except Exception:
+           raise HTTPException(500, "There was a problem at the registration process")
+
+    @staticmethod
+    async def register_pacient(email : str, password : str, first_name : str, last_name : str , role : str):
+        result = await AuthRepository.search_user_by_email(email)
+        if result:
+            raise HTTPException(400, "There is already an account registered with this email")
+
+        password = hash_password(password)
+        
+        try:
+            await AuthRepository.insert_user(email, password, first_name, last_name , role)
+            token = create_access_token(
+                    {"email" : email, "first_name" : first_name, "last_name" : last_name , "role" : role},
                                             timedelta(days=2))
             return {"message" : "User succesfully registered", "access_token" : token}
         except Exception:

@@ -1,15 +1,22 @@
 from fastapi import APIRouter,Depends
-from app.modules.auth.model import UserRegistrationRequest, UserLoginRequest
+from app.modules.auth.model import PacientRegistrationRequest, MedicRegistrationRequest, UserLoginRequest
 from app.modules.auth.service import AuthService
 
 router = APIRouter()
 
 @router.post(
-    "/register",
-    summary = "User registration"
+    "/register-medic",
+    summary = "Doctor registration"
 )
-async def register_user(user : UserRegistrationRequest):
-    return await AuthService.register_user(user.email, user.password, user.first_name, user.last_name , user.role , user.specialization)
+async def register_medic(user : MedicRegistrationRequest):
+    return await AuthService.register_medic(user.email, user.password, user.first_name, user.last_name , "medic", user.specialization)
+
+@router.post(
+    "/register-pacient",
+    summary = "Pacient registration"
+)
+async def register_pacient(user : PacientRegistrationRequest):
+    return await AuthService.register_pacient(user.email, user.password, user.first_name, user.last_name, "pacient")
 
 @router.post(
     "/login",

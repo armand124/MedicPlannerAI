@@ -80,6 +80,25 @@ const Auth = () => {
               {mode === 'signup' && (
                 <>
                   <div className="space-y-2">
+                    <Label>I am a</Label>
+                    <RadioGroup value={role} onValueChange={(value) => setRole(value as UserRole)}>
+                      <div className="flex items-center space-x-2 rounded-lg border border-border p-3 hover:border-primary/50 transition-colors">
+                        <RadioGroupItem value="patient" id="patient" />
+                        <Label htmlFor="patient" className="flex-1 cursor-pointer">
+                          Patient
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2 rounded-lg border border-border p-3 hover:border-primary/50 transition-colors">
+                        <RadioGroupItem value="doctor" id="doctor" />
+                        <Label htmlFor="doctor" className="flex-1 cursor-pointer">
+                          Doctor
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  
+                  <div className="space-y-2">
                     <Label htmlFor="fName">First Name</Label>
                     <Input
                       id="fName"
@@ -103,23 +122,20 @@ const Auth = () => {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>I am a</Label>
-                    <RadioGroup value={role} onValueChange={(value) => setRole(value as UserRole)}>
-                      <div className="flex items-center space-x-2 rounded-lg border border-border p-3 hover:border-primary/50 transition-colors">
-                        <RadioGroupItem value="patient" id="patient" />
-                        <Label htmlFor="patient" className="flex-1 cursor-pointer">
-                          Patient
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2 rounded-lg border border-border p-3 hover:border-primary/50 transition-colors">
-                        <RadioGroupItem value="doctor" id="doctor" />
-                        <Label htmlFor="doctor" className="flex-1 cursor-pointer">
-                          Doctor
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
+                  {role !== 'patient' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="specialization">Specialization</Label>
+                      <Input
+                        id="specialization"
+                        type="text"
+                        placeholder="Medic"
+                        value={specialization}
+                        onChange={(e) => setSpecialization(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
+                  
                 </>
               )}
 

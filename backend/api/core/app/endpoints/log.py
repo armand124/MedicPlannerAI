@@ -2,7 +2,6 @@ from fastapi import APIRouter,Depends
 from app.modules.auth.service import AuthService
 from app.modules.log.service import LogService
 from app.modules.log.model import LogEntry
-from fastapi import FastAPI , Request
 
 router = APIRouter()
 

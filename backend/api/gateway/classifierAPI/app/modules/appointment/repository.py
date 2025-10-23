@@ -1,3 +1,5 @@
+from app.core.config import settings
+from app.core.db import Database
 
 class AppointmentRepository:
 
@@ -12,5 +14,6 @@ class AppointmentRepository:
     @staticmethod
     async def get_calendar(id_med):
         col = Database.db[settings.DB_MEDS_COLLECTION]
-        return await col.find_one({"id_med" : id_med})["appointments"]
+        medic = await col.find_one({"id_med" : id_med})
+        return medic["appointments"]
         

@@ -10,6 +10,7 @@ router = APIRouter()
     "/logs/"
 )
 async def logs(current_user : dict = Depends(get_current_user)):
+    print(current_user)
     result = await LogService.fetch_logs(current_user) 
     return result
 

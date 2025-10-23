@@ -13,5 +13,6 @@ def get_current_user(credentials : HTTPAuthorizationCredentials = Depends(securi
     token = credentials.credentials
     try:
         user_info = decode_token(token)
+        return user_info
     except Exception:
         raise HTTPException(401, "Invalid token!")

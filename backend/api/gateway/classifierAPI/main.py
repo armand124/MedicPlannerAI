@@ -8,6 +8,12 @@ from app.endpoints import log
 from app.modules.log.model import LogEntry
 import datetime 
 from app.modules.log.service import LogService
+import jwt 
+from app.core.config import settings
+
+def decode_token(token : str) -> dict:
+    info = jwt.decode(token, settings.SECRET_KEY, settings.JWT_ALGORITHM)
+    return info
 
 @asynccontextmanager
 async def lifespan(app : FastAPI):

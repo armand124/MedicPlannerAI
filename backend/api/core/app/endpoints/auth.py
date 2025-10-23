@@ -26,7 +26,8 @@ async def login_user(user : UserLoginRequest):
     return await AuthService.login_user(user.email, user.password)
 
 @router.get(
-    "/profile"
+    "/profile",
+    summary="Get user information from token"
 )
 async def profile(current_user : dict = Depends(AuthService.get_current_user)):
-    return {"email" : current_user["email"]}
+    return current_user

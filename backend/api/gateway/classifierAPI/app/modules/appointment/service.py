@@ -62,8 +62,8 @@ def search_for_empty_slot(prior : str , appointments : list):
         prior_trans += 3
         prior_trans %= 3
 
-    for i in days:
-        print(i)
+    # for i in days:
+    #     print(i)
 
     return datetime.strftime(free_slots[prior_idx[prior_trans]] , "%Y-%m-%d %H:%M")
     

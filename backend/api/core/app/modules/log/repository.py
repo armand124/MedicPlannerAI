@@ -16,7 +16,7 @@ class LogRepository:
         return result.inserted_id
 
     async def get_logs():
-        col = Database.db[settings.DB_USER_COLLECTION]
+        col = Database.db[settings.DB_LOGS_COLLECTION]
         res = []
 
         async for log in col.find():

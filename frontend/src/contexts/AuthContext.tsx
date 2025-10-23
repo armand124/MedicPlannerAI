@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, UserRole, AuthContextType } from '@/types';
+import { User, UserRole, AuthContextType, AuthResponse } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { authApi, ApiError } from '@/lib/api';
 
@@ -37,9 +37,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const data = await authApi.login(email, password);
+      console.log(data);
+
 
       // Store token and user data
-      localStorage.setItem('medical_planner_token', data.token);
+      localStorage.setItem('medical_planner_token', data.access_token);
       localStorage.setItem('medical_planner_user', JSON.stringify(data.user));
       setUser(data.user);
       
@@ -63,7 +65,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (email: string, password: string, first_name: string, last_name: string, role: UserRole, specialization: string) => {
     setIsLoading(true);
     try {
-      const data = await authApi.register(email, password, first_name, last_name, role, specialization);
+      let data;
+      if (role === 'doctor') {
+        data = await authApi.register_medic(email, password, first_name, last_name, specialization);
+      }
+      else {
+        data = await authApi.register_pacient(email, password, first_name, last_name);
+      }
+      
 
       // Store token and user data
       localStorage.setItem('medical_planner_token', data.token);

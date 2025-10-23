@@ -3,8 +3,8 @@ export type UserRole = 'patient' | 'doctor';
 export interface User {
   _id: string;
   email: string;
-  fName: string;
-  lName: string;
+  first_name: string;
+  last_name: string;
   role: UserRole;
   specialization: string;
 }
@@ -62,8 +62,8 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  fName: string;
-  lName: string;
+  first_name: string;
+  last_name: string;
   role: UserRole;
   specialization: string;
 }
@@ -71,7 +71,6 @@ export interface RegisterRequest {
 export interface AuthResponse {
   message: string;
   access_token: string;
-  name: string;
 }
 
 export interface ApiError {

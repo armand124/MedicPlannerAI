@@ -1,12 +1,9 @@
 export type UserRole = 'patient' | 'doctor';
 
 export interface User {
-  _id: string;
-  email: string;
+  access_token: string;
   first_name: string;
-  last_name: string;
   role: UserRole;
-  specialization: string;
 }
 
 export type AppointmentStatus = 'scheduled' | 'completed' | 'cancelled' | 'no-show';

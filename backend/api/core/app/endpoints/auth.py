@@ -9,14 +9,14 @@ router = APIRouter()
     summary = "Doctor registration"
 )
 async def register_medic(user : MedicRegistrationRequest):
-    return await AuthService.register_medic(user.email, user.password, user.first_name, user.last_name , "medic", user.specialization)
+    return await AuthService.register_medic(user.email, user.password, user.first_name, user.last_name , "doctor", user.specialization)
 
 @router.post(
     "/register-pacient",
     summary = "Pacient registration"
 )
 async def register_pacient(user : PacientRegistrationRequest):
-    return await AuthService.register_pacient(user.email, user.password, user.first_name, user.last_name, "pacient")
+    return await AuthService.register_pacient(user.email, user.password, user.first_name, user.last_name, "patient")
 
 @router.post(
     "/login",

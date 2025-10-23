@@ -19,10 +19,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (token && storedUser) {
         try {
           // Verify token with server
-          const userData = await authApi.verify();
-          setUser(userData.user);
+          const userData = await authApi.profile();
+          const user_data : User = {access_token: token, first_name: userData.first_name, role: userData.role};
+          setUser(user_data);
         } catch (error) {
           // Token is invalid or network error, clear stored data
+          console.log("Errors on profile");
           localStorage.removeItem('medical_planner_token');
           localStorage.removeItem('medical_planner_user');
         }
@@ -39,15 +41,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await authApi.login(email, password);
       console.log(data);
 
-
       // Store token and user data
       localStorage.setItem('medical_planner_token', data.access_token);
-      localStorage.setItem('medical_planner_user', JSON.stringify(data.user));
-      setUser(data.user);
+      localStorage.setItem('medical_planner_user', data.first_name); //JSON.stringify
+      
+      const user_data : User = {access_token: data.access_token, first_name: data.first_name, role: data.role};
+      setUser(user_data);
       
       toast({
         title: 'Login successful',
-        description: `Welcome back, ${data.user.name}!`,
+        description: `Welcome back, ${localStorage.getItem('medical_planner_user')}!`,
       });
     } catch (error) {
       const errorMessage = error instanceof ApiError ? error.message : 'Invalid credentials';
@@ -75,9 +78,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
 
       // Store token and user data
-      localStorage.setItem('medical_planner_token', data.token);
-      localStorage.setItem('medical_planner_user', JSON.stringify(data.user));
-      setUser(data.user);
+      localStorage.setItem('medical_planner_token', data.access_token);
+      localStorage.setItem('medical_planner_user', data.first_name); // JSON.stringify
+      const user_data : User = {access_token: data.access_token, first_name: data.first_name, role: role};
+      setUser(user_data);
+      console.log(user);
+      
       
       toast({
         title: 'Account created',

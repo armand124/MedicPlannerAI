@@ -17,7 +17,7 @@ import { format } from 'date-fns';
 
 const PatientDashboard = () => {
   const { user } = useAuth();
-  const { appointments, createAppointment, isLoading } = useAppointments(user?._id, 'patient');
+  const { appointments, createAppointment, isLoading } = useAppointments(user?.first_name, 'patient');
   const { doctors, isLoading: doctorsLoading, specializations } = useDoctors();
   const { spec, isLoading: specLoading, fetchSpec } = useQuestionnaire();
   const { toast } = useToast();
@@ -86,9 +86,9 @@ const PatientDashboard = () => {
       const selectedDoctor = doctors[0];
       
       await createAppointment({
-        patientId: user?._id || '',
-        patientName: user?.fName || '',
-        patientEmail: user?.email || '',
+        patientId: user?.first_name || '',
+        patientName: user?.first_name || '',
+        patientEmail: user?.first_name || '',
         patientPhone: formData.phone,
         doctorId: selectedDoctor._id,
         doctorName: selectedDoctor.name,
@@ -132,7 +132,7 @@ const PatientDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
-            Welcome, {user?.fName}
+            Welcome, {user?.first_name}
           </h1>
           <p className="text-muted-foreground">
             Manage your appointments and medical records

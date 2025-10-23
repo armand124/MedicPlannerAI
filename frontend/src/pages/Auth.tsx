@@ -17,8 +17,8 @@ const Auth = () => {
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fName, setFName] = useState('');
-  const [lName, setLName] = useState('');
+  const [first_name, setFName] = useState('');
+  const [last_name, setLName] = useState('');
   const [specialization, setSpecialization] = useState('');
   const [role, setRole] = useState<UserRole>('patient');
   const { login, signup, isLoading, user } = useAuth();
@@ -40,7 +40,7 @@ const Auth = () => {
       if (mode === 'login') {
         await login(email, password);
       } else {
-        await signup(email, password, fName, lName, role, specialization);
+        await signup(email, password, first_name, last_name, role, specialization);
       }
       
       // Navigation will be handled by the useEffect above
@@ -101,10 +101,10 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="fName">First Name</Label>
                     <Input
-                      id="fName"
+                      id="first_name"
                       type="text"
                       placeholder="John"
-                      value={fName}
+                      value={first_name}
                       onChange={(e) => setFName(e.target.value)}
                       required
                     />
@@ -113,10 +113,10 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="lName">Last Name</Label>
                     <Input
-                      id="lName"
+                      id="last_name"
                       type="text"
                       placeholder="Doe"
-                      value={lName}
+                      value={last_name}
                       onChange={(e) => setLName(e.target.value)}
                       required
                     />

@@ -27,7 +27,7 @@ export const Navigation = () => {
             <>
               <div className="flex items-center gap-2 text-sm">
                 <User className="h-4 w-4" />
-                <span className="font-medium">{user.fName}</span>
+                <span className="font-medium">{user.first_name}</span>
                 <span className="text-muted-foreground">({user.role})</span>
               </div>
               {user.role === 'doctor' && (

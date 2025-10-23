@@ -87,12 +87,14 @@ export const authApi = {
     });
   },
 
-  verify: async () => {
-    return apiRequest('/auth/verify');
+  profile: async () => {
+    return apiRequest('/profile', {
+      method: 'GET'
+    });
   },
 
   logout: async () => {
-    return apiRequest('/auth/logout', {
+    return apiRequest('/logout', {
       method: 'POST',
     });
   },

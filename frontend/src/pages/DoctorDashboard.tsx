@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const DoctorDashboard = () => {
   const { user } = useAuth();
-  const { appointments, updateAppointment, isLoading } = useAppointments(user?._id, 'doctor');
+  const { appointments, updateAppointment, isLoading } = useAppointments(user?.first_name, 'doctor');
   const [viewMode, setViewMode] = useState<'today' | 'calendar'>('today');
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [editingNotes, setEditingNotes] = useState(false);
@@ -59,7 +59,7 @@ const DoctorDashboard = () => {
               Doctor Dashboard
             </h1>
             <p className="text-muted-foreground">
-              Welcome back, {user?.fName}
+              Welcome back, {user?.first_name}
             </p>
           </div>
           

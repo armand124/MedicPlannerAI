@@ -6,6 +6,7 @@ from app.endpoints import log
 from app.modules.auth.service import decode_token
 from app.modules.log.model import LogEntry
 from app.modules.log.service import LogService
+from fastapi.middleware.cors import CORSMiddleware
 import datetime 
 
 @asynccontextmanager

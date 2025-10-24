@@ -63,7 +63,7 @@ async def function_func(request : Request , callable):
         entry.user = ""
 
     entry.timestamp = datetime.datetime.now()
-    print(type(request.base_url))
+    
     base_url = '%s' % (request.base_url)
     url = '%s' % (request.url)
 

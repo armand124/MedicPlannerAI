@@ -22,18 +22,15 @@ export const useAppointments = (userId?: string, role?: 'patient' | 'doctor') =>
       setIsLoading(true);
       
       try {
-        console.log(localStorage.getItem('medical_planner_token'));
         const response = await api.get<{ appointments: DoctorAppointment[] }>(`/appointments-doctor`);
-        console.log(response.appointments);
         setAppointments(response.appointments);
-        console.log(appointments);
       } catch (error) {
         console.error('Failed to fetch appointments:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load appointments. Please try again.',
-          variant: 'destructive',
-        });
+        // toast({
+        //   title: 'Error',
+        //   description: 'Failed to load appointments. Please try again.',
+        //   variant: 'destructive',
+        // });
         setAppointments([]);
       } finally {
         setIsLoading(false);

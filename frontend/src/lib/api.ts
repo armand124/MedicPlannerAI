@@ -86,7 +86,6 @@ export const apiRequestGateway = async <T = any>(
 
   try {
     const response = await fetch(`${API_GATEWAY_URL}${endpoint}`, config);
-    console.log(response);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -137,13 +136,7 @@ export const authApi = {
     return apiRequest('/users/me', {
       method: 'GET'
     });
-  },
-
-  logout: async () => {
-    return apiRequest('/logout', {
-      method: 'POST',
-    });
-  },
+  }
 };
 
 // Generic API functions for other endpoints

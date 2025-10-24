@@ -105,23 +105,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    try {
-      // Call logout endpoint to invalidate token on server
-      await authApi.logout();
-    } catch (error) {
-      // Even if server logout fails, we should still clear local data
-      console.error('Logout error:', error);
-    } finally {
-      // Clear local storage and state
-      setUser(null);
-      localStorage.removeItem('medical_planner_token');
-      localStorage.removeItem('medical_planner_user');
-      
-      toast({
-        title: 'Logged out',
-        description: 'You have been logged out successfully.',
-      });
-    }
+    setUser(null);
+    localStorage.removeItem('medical_planner_token');
+    localStorage.removeItem('medical_planner_user');
+    
+    toast({
+      title: 'Logged out',
+      description: 'You have been logged out successfully.',
+    });
   };
 
   return (

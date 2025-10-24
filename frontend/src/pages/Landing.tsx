@@ -119,7 +119,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Founders Section */}
+      {/* Founders Section
       <section className="container mx-auto px-4 py-20 lg:py-32 bg-muted/30">
         <div className="text-center space-y-4 mb-16">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
@@ -143,7 +143,7 @@ const Landing = () => {
             </Card>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-20">

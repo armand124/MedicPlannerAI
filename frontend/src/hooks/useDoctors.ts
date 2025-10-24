@@ -18,6 +18,7 @@ export const useDoctors = () => {
   const [specializations, setSpecializations] = useState<string[]>([]);
 
   const fetchDoctors = useCallback(async (specialization?: string) => {
+    if (!specialization) specialization = 'Obstetrician';
     setIsLoading(true);
     try {
       const res = await api.get<{ doctors: Doctor[] }>('/doctors/' + specialization);

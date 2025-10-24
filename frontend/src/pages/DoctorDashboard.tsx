@@ -39,7 +39,6 @@ const DoctorDashboard = () => {
   const cancelAppointment = async (apt: DoctorAppointment) => {
     const response = await api.put<string>(`/appointments/cancel/` + apt._id);
     window.location.reload();
-    console.log(response);
   };
 
   const handleSaveNotes = async () => {

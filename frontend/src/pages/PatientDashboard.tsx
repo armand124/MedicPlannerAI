@@ -12,7 +12,7 @@ import { useDoctors } from '@/hooks/useDoctors';
 import { useForms } from '@/hooks/useForms';
 import { Calendar, Clock, FileText, Plus, Ban } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { api, apiGateway, ApiError } from '@/lib/api';
 
 const PatientDashboard = () => {
@@ -52,6 +52,12 @@ const PatientDashboard = () => {
   const [answers, setAnswers] = useState<Record<number, number | string | boolean>>({});
   // selected doctor id chosen by the patient from the doctors list
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>('');
+  // create a sorted copy of appointments by parsed date string (format: "yyyy-MM-dd HH:mm")
+  const sortedAppointments = appointments.slice().sort((a, b) => {
+    const ta = parse(a.date, 'yyyy-MM-dd HH:mm', new Date()).getTime();
+    const tb = parse(b.date, 'yyyy-MM-dd HH:mm', new Date()).getTime();
+    return ta - tb;
+  });
 
   const validateForm = (): string | null => {
     if (!selectedSpecialization) return null;
@@ -94,14 +100,12 @@ const PatientDashboard = () => {
       const status = await apiGateway.post<string>('/get-results/' + selectedForm.model_eval_id, {
         "questions": answersBetter}
       );
-      console.log(status);
 
       const date = await apiGateway.post<string>('/planner', {
         "doctor_id": selectedDoctor._id,
         "prior": status["Status"]
       });
 
-      console.log(date);
 
       const appointmentFinal = await api.post<string>('/appointments/create', {
         "medic_id": selectedDoctor._id,
@@ -318,27 +322,28 @@ const PatientDashboard = () => {
                   </p>
                 ) : (
                   <div className="space-y-4">
-                    {appointments.map((apt) => (
-                      <div
-                        key={apt._id}
-                        className="flex items-start gap-4 rounded-lg border border-border p-4 hover:border-primary/50 transition-colors"
-                      >
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    {sortedAppointments.map((apt) => (
+                       <div
+                         key={apt._id}
+                         className="flex items-start gap-4 rounded-lg border border-border p-4 hover:border-primary/50 transition-colors"
+                       >
+                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                           <Calendar className="h-5 w-5" />
                         </div>
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center justify-between">
                             <p className="font-semibold">{apt.doctor_first_name} {apt.doctor_last_name}</p>
                             <span className={`text-xs px-2 py-1 rounded-full ${
-                              apt.status === 'scheduled' ? 'bg-primary/10 text-primary' :
+                              apt.status === 'upcoming' ? 'bg-primary/10 text-primary' :
                               apt.status === 'completed' ? 'bg-secondary/10 text-secondary' :
-                              'bg-muted text-muted-foreground'
+                              apt.status === 'cancelled' ? 'bg-pink-500/10 text-gray'
+                              : 'bg-muted text-muted-foreground'
                             }`}>
                               {apt.status}
                             </span>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {format(new Date(apt.date), 'PPP')} at {apt.date}
+                            {format(new Date(apt.date), 'PPP')} at {apt.date.split(" ")[1]}
                           </p>
                           <p className="text-sm">{apt.doctor_specialization}</p>
                         </div>

@@ -1,11 +1,6 @@
 from app.modules.appointments.repository import AppointmentRepository
 from app.modules.user.repository import UserRepository
 from fastapi import HTTPException
-class AppointmentService:
-    @staticmethod
-    async def create_appointment(doctor_id : str, date : str, patient_id : str):
-        from fastapi import HTTPException
-from app.modules.appointments.repository import AppointmentRepository
 
 class AppointmentService:
     @staticmethod
@@ -68,3 +63,14 @@ class AppointmentService:
             return {"message" : "Succesfully canceled appointment"}
         else:
             raise HTTPException(400, "Couldn't cancel appointment")
+    
+    @staticmethod
+    async def get_all_appointments_for_patient(patient_email : str, role : str):
+        if role != 'patient':
+            raise HTTPException(400, "Acess denied!")
+        
+        patient_id = await UserRepository.get_user_id_by_email(patient_email)
+        appointments = await AppointmentRepository.retrieve_all_patient_appointments(patient_id)
+
+        if len(appointments) > 0:
+            return {"appointments" : appointments}

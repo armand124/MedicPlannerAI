@@ -107,3 +107,39 @@ class AppointmentRepository:
         col = Database.db[settings.DB_APPOINTMENTS_COLLECTION]
         result = await col.find_one({"_id" : ObjectId(appointment_id)})
         return result
+    
+    @staticmethod
+    async def retrieve_all_patient_appointments(patient_id : str):
+        col = Database.db[settings.DB_APPOINTMENTS_COLLECTION]
+        pipeline = [
+            {"$match": {"patient_id": ObjectId(patient_id)}},
+            {
+                "$lookup": {
+                    "from": settings.DB_USER_COLLECTION,  
+                    "localField": "doctor_id",           
+                    "foreignField": "_id",                 
+                    "as": "doctor_info"                    
+                }
+            },
+            {
+                "$unwind": {                           
+                    "path": "$doctor_info",
+                    "preserveNullAndEmptyArrays": True
+                }
+            },
+            {
+                "$project": {   
+                    "_id" : 1,                         
+                    "date": 1,
+                    "doctor_first_name": "$doctor_info.first_name", 
+                    "doctor_last_name": "$doctor_info.last_name",
+                    "doctor_specialization" : "$doctor_info.specialization"
+                }
+            }
+        ]
+
+        cursor = await col.aggregate(pipeline)
+        appointments = await cursor.to_list(length=None)
+        for app in appointments:
+            app["_id"] = str(app["_id"])
+        return appointments

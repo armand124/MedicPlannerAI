@@ -19,11 +19,18 @@ async def get_appointments_for_doctors(current_user : dict = Depends(AuthService
     return await AppointmentService.get_appointments_for_doctor(current_user["email"], current_user["role"])
 
 @router.get(
-    "/appointments-patient",
+    "/appointments-patient/upcoming",
     summary="Receives all the appointments for a patient"
 )
 async def get_appointments_for_doctors(current_user : dict = Depends(AuthService.get_current_user)):
     return await AppointmentService.get_appointments_for_patient(current_user["email"],current_user["role"])
+
+@router.get(
+    "/appointments-patient/all",
+    summary="Receives all the appointments for a patient"
+)
+async def get_all_appointments_for_doctors(current_user : dict = Depends(AuthService.get_current_user)):
+    return await AppointmentService.get_all_appointments_for_patient(current_user["email"],current_user["role"])
 
 @router.put(
     "/appointments/cancel/{appointment_id}",

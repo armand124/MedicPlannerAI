@@ -1,6 +1,7 @@
 // API utility functions for making authenticated requests
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:8001';
 
 export interface ApiResponse<T = any> {
   data?: T;
@@ -66,8 +67,7 @@ export const apiRequest = async <T = any>(
   }
 };
 
-export const apiRequestCustomIp = async <T = any>(
-  Ip: string,
+export const apiRequestGateway = async <T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> => {
@@ -85,7 +85,7 @@ export const apiRequestCustomIp = async <T = any>(
   };
 
   try {
-    const response = await fetch(`${Ip}${endpoint}`, config);
+    const response = await fetch(`${API_GATEWAY_URL}${endpoint}`, config);
     console.log(response);
     
     if (!response.ok) {
@@ -168,23 +168,23 @@ export const api = {
     }),
 };
 
-export const customApi = {
-  get: <T = any>(Ip: string, endpoint: string) => apiRequestCustomIp<T>(Ip, endpoint),
+export const apiGateway = {
+  get: <T = any>(endpoint: string) => apiRequestGateway<T>(endpoint),
   
-  post: <T = any>(Ip: string, endpoint: string, data?: any) => 
-    apiRequestCustomIp<T>(Ip, endpoint, {
+  post: <T = any>(endpoint: string, data?: any) => 
+    apiRequestGateway<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
     }),
   
-  put: <T = any>(Ip: string, endpoint: string, data?: any) => 
-    apiRequestCustomIp<T>(Ip, endpoint, {
+  put: <T = any>(endpoint: string, data?: any) => 
+    apiRequestGateway<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
     }),
   
-  delete: <T = any>(Ip: string, endpoint: string) => 
-    apiRequestCustomIp<T>(Ip, endpoint, {
+  delete: <T = any>(endpoint: string) => 
+    apiRequestGateway<T>(endpoint, {
       method: 'DELETE',
     }),
 };

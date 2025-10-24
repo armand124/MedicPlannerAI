@@ -23,7 +23,7 @@ export const useAppointments = (userId?: string, role?: 'patient' | 'doctor') =>
       
       try {
         const response = await api.get<{ appointments: Appointment[] }>(
-          `/appointments?userId=${userId}&role=${role}`
+          `/appointments-patient/all`
         );
         setAppointments(response.appointments);
       } catch (error) {

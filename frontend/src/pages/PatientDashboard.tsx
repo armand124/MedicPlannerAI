@@ -10,10 +10,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useDoctors } from '@/hooks/useDoctors';
 import { useForms } from '@/hooks/useForms';
-import { Calendar, Clock, FileText, Plus } from 'lucide-react';
+import { Calendar, Clock, FileText, Plus, Ban } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { api, customApi, ApiError } from '@/lib/api';
+import { api, apiGateway, ApiError } from '@/lib/api';
 
 const PatientDashboard = () => {
   const { user } = useAuth();
@@ -91,12 +91,12 @@ const PatientDashboard = () => {
       // Build an array of answers with questionId and value
       const answersBetter = Object.values(answers);
 
-      const status = await customApi.post<string>('http://localhost:6969', '/get-results/' + selectedForm.model_eval_id, {
+      const status = await apiGateway.post<string>('/get-results/' + selectedForm.model_eval_id, {
         "questions": answersBetter}
       );
       console.log(status);
 
-      const date = await customApi.post<string>('http://localhost:6969', '/planner', {
+      const date = await apiGateway.post<string>('/planner', {
         "doctor_id": selectedDoctor._id,
         "prior": status["Status"]
       });
@@ -327,7 +327,7 @@ const PatientDashboard = () => {
                         </div>
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center justify-between">
-                            <p className="font-semibold">{apt.doctorName}</p>
+                            <p className="font-semibold">{apt.doctor_first_name} {apt.doctor_last_name}</p>
                             <span className={`text-xs px-2 py-1 rounded-full ${
                               apt.status === 'scheduled' ? 'bg-primary/10 text-primary' :
                               apt.status === 'completed' ? 'bg-secondary/10 text-secondary' :
@@ -337,15 +337,9 @@ const PatientDashboard = () => {
                             </span>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {format(new Date(apt.date), 'PPP')} at {apt.startTime}
+                            {format(new Date(apt.date), 'PPP')} at {apt.date}
                           </p>
-                          <p className="text-sm">{apt.reason}</p>
-                          {apt.diagnosis && (
-                            <div className="mt-2 rounded-md bg-muted/50 p-2">
-                              <p className="text-sm font-medium">Diagnosis:</p>
-                              <p className="text-sm text-muted-foreground">{apt.diagnosis}</p>
-                            </div>
-                          )}
+                          <p className="text-sm">{apt.doctor_specialization}</p>
                         </div>
                       </div>
                     ))}
@@ -369,7 +363,7 @@ const PatientDashboard = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">Upcoming</p>
                     <p className="text-2xl font-bold">
-                      {appointments.filter(a => a.status === 'scheduled').length}
+                      {appointments.filter(a => a.status === 'upcoming').length}
                     </p>
                   </div>
                 </div>
@@ -382,6 +376,18 @@ const PatientDashboard = () => {
                     <p className="text-sm text-muted-foreground">Completed</p>
                     <p className="text-2xl font-bold">
                       {appointments.filter(a => a.status === 'completed').length}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10">
+                    <Ban className="h-5 w-5 text-danger" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Cancelled</p>
+                    <p className="text-2xl font-bold">
+                      {appointments.filter(a => a.status === 'cancelled').length}
                     </p>
                   </div>
                 </div>

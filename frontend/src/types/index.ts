@@ -13,23 +13,11 @@ export type AppointmentStatus = 'scheduled' | 'completed' | 'cancelled' | 'no-sh
 
 export interface Appointment {
   _id: string;
-  patientId: string;
-  patientName: string;
-  patientEmail: string;
-  patientPhone: string;
-  doctorId: string;
-  doctorName: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-  status: AppointmentStatus;
-  reason: string;
-  notes?: string;
-  symptoms?: string;
-  diagnosis?: string;
-  prescription?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  date: string;
+  status: string;
+  doctor_first_name: string;
+  doctor_last_name: string;
+  doctor_specialization: string;
 }
 
 export interface AuthContextType {

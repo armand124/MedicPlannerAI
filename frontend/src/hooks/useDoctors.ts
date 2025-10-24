@@ -21,7 +21,6 @@ export const useDoctors = () => {
     setIsLoading(true);
     try {
       const res = await api.get<{ doctors: Doctor[] }>('/doctors/' + specialization);
-      console.log(res);
       setDoctors(res.doctors);
       // derive specializations from doctors list for now (until dedicated endpoint)
       const specs = Array.from(new Set(res.doctors.map(d => d.specialization).filter(Boolean)));

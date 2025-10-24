@@ -2,7 +2,10 @@ export type UserRole = 'patient' | 'doctor';
 
 export interface User {
   access_token: string;
+  user_id: string;
+  email: string;
   first_name: string;
+  last_name: string;
   role: UserRole;
 }
 

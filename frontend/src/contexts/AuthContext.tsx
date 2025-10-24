@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole, AuthContextType, AuthResponse } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { authApi, ApiError } from '@/lib/api';
+import { authApi, ApiError, apiRequest } from '@/lib/api';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -19,9 +19,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (token && storedUser) {
         try {
           // Verify token with server
-          const userData = await authApi.profile();
-          const user_data : User = {access_token: token, first_name: userData.first_name, role: userData.role};
-          setUser(user_data);
+          const user_data = await authApi.profile();
+          const userData : User = {access_token: token, user_id: user_data.user_id, email: user_data.email, first_name: user_data.first_name, last_name: user_data.last_name, role: user_data.role };
+          setUser(userData);
         } catch (error) {
           // Token is invalid or network error, clear stored data
           console.log("Errors on profile");
@@ -39,14 +39,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const data = await authApi.login(email, password);
-      console.log(data);
 
       // Store token and user data
       localStorage.setItem('medical_planner_token', data.access_token);
       localStorage.setItem('medical_planner_user', data.first_name); //JSON.stringify
       
-      const user_data : User = {access_token: data.access_token, first_name: data.first_name, role: data.role};
-      setUser(user_data);
+      const user_data = await authApi.profile();
+      const userData : User = {access_token: data.access_token, user_id: user_data.user_id, email: user_data.email, first_name: user_data.first_name, last_name: user_data.last_name, role: user_data.role };
+      setUser(userData);
       
       toast({
         title: 'Login successful',
@@ -70,9 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       let data;
       if (role === 'doctor') {
-        console.log("intra aici");
         data = await authApi.register_medic(email, password, first_name, last_name, specialization);
-        console.log("se termina aici");
       }
       else {
         data = await authApi.register_pacient(email, password, first_name, last_name);
@@ -83,9 +81,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Store token and user data
       localStorage.setItem('medical_planner_token', data.access_token);
       localStorage.setItem('medical_planner_user', data.first_name); // JSON.stringify
-      const user_data : User = {access_token: data.access_token, first_name: data.first_name, role: role};
-      setUser(user_data);
-      console.log(user);
+
+      const user_data = await authApi.profile();
+      const userData : User = {access_token: data.access_token, user_id: user_data.user_id, email: user_data.email, first_name: user_data.first_name, last_name: user_data.last_name, role: user_data.role };
+      setUser(userData);
       
       
       toast({

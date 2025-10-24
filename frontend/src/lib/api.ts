@@ -43,7 +43,6 @@ export const apiRequest = async <T = any>(
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    console.log(response);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -135,7 +134,7 @@ export const authApi = {
   },
 
   profile: async () => {
-    return apiRequest('/profile', {
+    return apiRequest('/users/me', {
       method: 'GET'
     });
   },

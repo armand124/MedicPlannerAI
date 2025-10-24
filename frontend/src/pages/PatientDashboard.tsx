@@ -88,11 +88,26 @@ const PatientDashboard = () => {
       // Use the first available doctor for now
       // prefer the doctor selected by the patient; fallback to first available
       const selectedDoctor = doctors.find((d: any) => d._id === selectedDoctorId) ?? doctors[0];
-      console.log(selectedDoctor);
-      console.log(answers);
+      // Build an array of answers with questionId and value
+      const answersBetter = Object.values(answers);
 
-      const resp = await customApi.post<string>('http://localhost:6969', '/get-results/' + selectedForm.model_eval_id, answers);
-      console.log(resp);
+      const status = await customApi.post<string>('http://localhost:6969', '/get-results/' + selectedForm.model_eval_id, {
+        "questions": answersBetter}
+      );
+      console.log(status);
+
+      const date = await customApi.post<string>('http://localhost:6969', '/planner', {
+        "doctor_id": selectedDoctor._id,
+        "prior": status["Status"]
+      });
+
+      console.log(date);
+
+      const appointmentFinal = await api.post<string>('/appointments/create', {
+        "medic_id": selectedDoctor._id,
+        "date": date["date"]
+      })
+      // const resp2 = await customApi.post
       toast({
         title: 'Appointment requested',
         description: 'Your appointment request has been submitted successfully.',

@@ -42,3 +42,14 @@ class AppointmentService:
             return {"appointments" : appointments}
         
         raise HTTPException(400, "Couldn't get appointments!")
+    
+    @staticmethod
+    async def get_appointments_for_patient(patient_email : str, role : str):
+        if role != 'patient':
+            raise HTTPException(400, "Acess denied!")
+        
+        patient_id = await UserRepository.get_user_id_by_email(patient_email)
+        appointments = await AppointmentRepository.retrieve_patient_appointments(patient_id)
+
+        if len(appointments) > 0:
+            return {"appointments" : appointments}

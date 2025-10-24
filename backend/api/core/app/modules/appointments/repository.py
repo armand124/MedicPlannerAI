@@ -11,14 +11,14 @@ class AppointmentRepository:
     @staticmethod
     async def insert_appointment(doctor_id : str, patient_id : str, date : str):
         col = Database.db[settings.DB_APPOINTMENTS_COLLECTION]
-        response = await col.insert_one({"doctor_id" : ObjectId(doctor_id), "patient_id" : ObjectId(patient_id), "date" : date})
+        response = await col.insert_one({"doctor_id" : ObjectId(doctor_id), "patient_id" : ObjectId(patient_id), "date" : date, "status" : "upcoming"})
         return response
     
     @staticmethod
     async def get_appointments_for_doctor(doctor_id: str):
         col = Database.db[settings.DB_APPOINTMENTS_COLLECTION]
         pipeline = [
-            {"$match": {"doctor_id": ObjectId(doctor_id)}},
+            {"$match": {"doctor_id": ObjectId(doctor_id), "status" : "upcoming"}},
             {
                 "$lookup": {
                     "from": settings.DB_USER_COLLECTION,  
@@ -46,3 +46,39 @@ class AppointmentRepository:
         cursor = await col.aggregate(pipeline)
         appointments = await cursor.to_list(length=None)
         return appointments
+    
+    @staticmethod
+    async def retrieve_patient_appointments(patient_id : str):
+        col = Database.db[settings.DB_APPOINTMENTS_COLLECTION]
+        pipeline = [
+            {"$match": {"patient_id": ObjectId(patient_id), "status" : "upcoming"}},
+            {
+                "$lookup": {
+                    "from": settings.DB_USER_COLLECTION,  
+                    "localField": "doctor_id",           
+                    "foreignField": "_id",                 
+                    "as": "doctor_info"                    
+                }
+            },
+            {
+                "$unwind": {                           
+                    "path": "$doctor_info",
+                    "preserveNullAndEmptyArrays": True
+                }
+            },
+            {
+                "$project": {   
+                    "_id" : 0,                         
+                    "date": 1,
+                    "doctor_first_name": "$doctor_info.first_name", 
+                    "doctor_last_name": "$doctor_info.last_name",
+                    "doctor_specialization" : "$doctor_info.specialization"
+                }
+            }
+        ]
+
+        cursor = await col.aggregate(pipeline)
+        appointments = await cursor.to_list(length=None)
+        return appointments
+    
+ 

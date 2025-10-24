@@ -5,7 +5,7 @@ from app.modules.appointments.model import PacientAppointment
 router = APIRouter()
 
 @router.post(
-    "/appointments-patient",
+    "/appointments",
     summary="Create's new appointment"
 )
 async def create_appointment_for_pacient(appointment_details : PacientAppointment, current_user : dict = Depends(AuthService.get_current_user)):
@@ -17,3 +17,10 @@ async def create_appointment_for_pacient(appointment_details : PacientAppointmen
 )
 async def get_appointments_for_doctors(current_user : dict = Depends(AuthService.get_current_user)):
     return await AppointmentService.get_appointments_for_doctor(current_user["email"], current_user["role"])
+
+@router.get(
+    "/appointments-patient",
+    summary="Receives all the appointments for a patient"
+)
+async def get_appointments_for_doctors(current_user : dict = Depends(AuthService.get_current_user)):
+    return await AppointmentService.get_appointments_for_patient(current_user["email"],current_user["role"])

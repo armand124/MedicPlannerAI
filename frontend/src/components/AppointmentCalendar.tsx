@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Appointment } from '@/types';
+import { DoctorAppointment } from '@/types';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday } from 'date-fns';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AppointmentCalendarProps {
-  appointments: Appointment[];
-  onSelectAppointment: (appointment: Appointment) => void;
+  appointments: DoctorAppointment[];
+  onSelectAppointment: (appointment: DoctorAppointment) => void;
 }
 
 export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
@@ -92,7 +92,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                       onClick={() => onSelectAppointment(apt)}
                       className="text-xs bg-primary/10 text-primary rounded px-1 py-0.5 truncate hover:bg-primary/20 transition-colors"
                     >
-                      {apt.startTime} - {apt.patientName}
+                      {apt.date.split(" ")[1]} - {apt.patient_first_name + " " + apt.patient_last_name}
                     </div>
                   ))}
                   {dayAppointments.length > 2 && (

@@ -20,6 +20,13 @@ export interface Appointment {
   doctor_specialization: string;
 }
 
+export interface DoctorAppointment {
+  _id: string;
+  date: string;
+  patient_first_name: string;
+  patient_last_name: string;
+}
+
 export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;

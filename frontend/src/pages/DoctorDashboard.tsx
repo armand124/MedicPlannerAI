@@ -3,36 +3,43 @@ import { Navigation } from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAppointments } from '@/hooks/useAppointments';
+import { useAppointments } from '@/hooks/useDoctorAppointments';
 import { AppointmentCalendar } from '@/components/AppointmentCalendar';
 import { Calendar, Clock, Users, FileText, Pencil } from 'lucide-react';
 import { format, isToday } from 'date-fns';
-import { Appointment } from '@/types';
+import { Appointment, DoctorAppointment } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { api, ApiError } from '@/lib/api';
 
 const DoctorDashboard = () => {
   const { user } = useAuth();
   const { appointments, updateAppointment, isLoading } = useAppointments(user?.first_name, 'doctor');
   const [viewMode, setViewMode] = useState<'today' | 'calendar'>('today');
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<DoctorAppointment | null>(null);
   const [editingNotes, setEditingNotes] = useState(false);
   const [notes, setNotes] = useState('');
   const [diagnosis, setDiagnosis] = useState('');
   const [status, setStatus] = useState<Appointment['status']>('scheduled');
 
   const todayAppointments = appointments.filter(apt => 
-    isToday(new Date(apt.date)) && apt.status === 'scheduled'
+    isToday(new Date(apt.date))
   );
 
-  const handleSelectAppointment = (apt: Appointment) => {
+  const handleSelectAppointment = (apt: DoctorAppointment) => {
     setSelectedAppointment(apt);
-    setNotes(apt.notes || '');
-    setDiagnosis(apt.diagnosis || '');
-    setStatus(apt.status);
+    setNotes("test1");
+    setDiagnosis("test2");
+    setStatus("test3");
     setEditingNotes(true);
+  }
+
+  const cancelAppointment = async (apt: DoctorAppointment) => {
+    const response = await api.put<string>(`/appointments/cancel/` + apt._id);
+    window.location.reload();
+    console.log(response);
   };
 
   const handleSaveNotes = async () => {
@@ -82,9 +89,9 @@ const DoctorDashboard = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid gap-4 md:grid-cols-4 mb-8">
+        <div className="grid gap-4 md:grid-cols-3 mb-8">
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-4">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Today's Appointments
               </CardTitle>
@@ -98,7 +105,7 @@ const DoctorDashboard = () => {
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-4">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Patients
               </CardTitle>
@@ -107,13 +114,13 @@ const DoctorDashboard = () => {
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-secondary" />
                 <span className="text-2xl font-bold">
-                  {new Set(appointments.map(a => a.patientId)).size}
+                  {appointments.length}
                 </span>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Completed
@@ -127,10 +134,10 @@ const DoctorDashboard = () => {
                 </span>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-4">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Upcoming
               </CardTitle>
@@ -139,7 +146,7 @@ const DoctorDashboard = () => {
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-primary" />
                 <span className="text-2xl font-bold">
-                  {appointments.filter(a => a.status === 'scheduled').length}
+                  {appointments.length}
                 </span>
               </div>
             </CardContent>
@@ -171,41 +178,25 @@ const DoctorDashboard = () => {
                       key={apt._id}
                       className="flex items-start gap-4 rounded-lg border border-border p-4 hover:border-primary/50 transition-colors"
                     >
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
-                        {apt.startTime}
+                      <div className="flex h-12 w-12 items-center justify-center text-primary font-semibold">
+                        {apt.date.split(" ")[1]}
                       </div>
                       <div className="flex-1 space-y-2">
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-semibold text-lg">{apt.patientName}</p>
-                            <p className="text-sm text-muted-foreground">{apt.patientEmail}</p>
-                            <p className="text-sm text-muted-foreground">{apt.patientPhone}</p>
+                            <p className="font-semibold text-lg">{apt.patient_first_name} {apt.patient_last_name}</p>
                           </div>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleSelectAppointment(apt)}
+                            onClick={() => {
+                              cancelAppointment(apt)}}
                           >
                             <Pencil className="h-4 w-4" />
-                            Edit Notes
+                            Cancel Appointment
                           </Button>
                         </div>
-                        <div className="space-y-1">
-                          <p className="text-sm">
-                            <span className="font-medium">Reason:</span> {apt.reason}
-                          </p>
-                          {apt.symptoms && (
-                            <p className="text-sm">
-                              <span className="font-medium">Symptoms:</span> {apt.symptoms}
-                            </p>
-                          )}
-                          {apt.notes && (
-                            <div className="mt-2 rounded-md bg-muted/50 p-2">
-                              <p className="text-sm font-medium">Doctor's Notes:</p>
-                              <p className="text-sm text-muted-foreground">{apt.notes}</p>
-                            </div>
-                          )}
-                        </div>
+
                       </div>
                     </div>
                   ))}
@@ -230,63 +221,20 @@ const DoctorDashboard = () => {
           {selectedAppointment && (
             <div className="space-y-4">
               <div className="rounded-lg bg-muted p-4 space-y-2">
-                <p className="font-semibold text-lg">{selectedAppointment.patientName}</p>
+                <p className="font-semibold text-lg">{selectedAppointment.patient_first_name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {format(new Date(selectedAppointment.date), 'PPP')} at {selectedAppointment.startTime}
+                  {selectedAppointment.date}
                 </p>
-                <p className="text-sm">
-                  <span className="font-medium">Reason:</span> {selectedAppointment.reason}
-                </p>
-                {selectedAppointment.symptoms && (
-                  <p className="text-sm">
-                    <span className="font-medium">Symptoms:</span> {selectedAppointment.symptoms}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select value={status} onValueChange={(value) => setStatus(value as Appointment['status'])}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="scheduled">Scheduled</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                    <SelectItem value="no-show">No-show</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="diagnosis">Diagnosis</Label>
-                <Textarea
-                  id="diagnosis"
-                  value={diagnosis}
-                  onChange={(e) => setDiagnosis(e.target.value)}
-                  placeholder="Enter diagnosis..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Doctor's Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add your notes about this consultation..."
-                  rows={4}
-                />
               </div>
 
               <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setEditingNotes(false)}>
-                  Cancel
+                <Button variant="outline" onClick={() => {
+                  cancelAppointment(selectedAppointment);
+                }}>
+                  Cancel Appointment
                 </Button>
-                <Button onClick={handleSaveNotes}>
-                  Save Notes
+                <Button onClick={() => setEditingNotes(false)}>
+                  Exit
                 </Button>
               </div>
             </div>

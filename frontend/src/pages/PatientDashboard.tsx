@@ -107,6 +107,7 @@ const PatientDashboard = () => {
         "medic_id": selectedDoctor._id,
         "date": date["date"]
       })
+      window.location.reload();
       // const resp2 = await customApi.post
       toast({
         title: 'Appointment requested',

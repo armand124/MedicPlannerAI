@@ -106,5 +106,4 @@ class AppointmentRepository:
     async def get_appointment_by_id(appointment_id : str):
         col = Database.db[settings.DB_APPOINTMENTS_COLLECTION]
         result = await col.find_one({"_id" : ObjectId(appointment_id)})
-        result["_id"] = str(result["_id"])
         return result

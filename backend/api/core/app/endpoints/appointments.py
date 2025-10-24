@@ -5,7 +5,7 @@ from app.modules.appointments.model import PacientAppointment
 router = APIRouter()
 
 @router.post(
-    "/appointments",
+    "/appointments/create",
     summary="Create's new appointment"
 )
 async def create_appointment_for_pacient(appointment_details : PacientAppointment, current_user : dict = Depends(AuthService.get_current_user)):

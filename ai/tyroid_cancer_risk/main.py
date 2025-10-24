@@ -53,3 +53,5 @@ y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print("Acc:", accuracy)
 
+joblib.dump(model, "tyoid_cancer_risk.joblib")
+

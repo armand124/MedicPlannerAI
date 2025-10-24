@@ -5,12 +5,12 @@ class PredictionService:
     @staticmethod
     async def get_prediction_result(model_id, features):
         model = PredictionModels.loaded_models.get(model_id)
-        print(model_id)
         if model is None:
             raise HTTPException(404, "Model not found!")
 
         try:
-            result = model.predict([features])
+            parsed_features = [float(num) for num in features]
+            result = model.predict([parsed_features])
         except Exception as e:
             raise HTTPException(500, f"Prediction failed : {e}")
         

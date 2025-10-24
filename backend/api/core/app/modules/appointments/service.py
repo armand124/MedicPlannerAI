@@ -53,3 +53,18 @@ class AppointmentService:
 
         if len(appointments) > 0:
             return {"appointments" : appointments}
+            
+    @staticmethod
+    async def cancel_appointment(appointment_id : str, user_email : str):
+        app = await AppointmentRepository.get_appointment_by_id(appointment_id)
+
+        if app["status"] != "upcoming":
+            raise HTTPException(400, "Cannot cancel this appointment")
+
+        user_id = await UserRepository.get_user_id_by_email(user_email)
+        result = await AppointmentRepository.cancel_appointment_by_id(appointment_id, user_id)
+
+        if result.modified_count == 1:
+            return {"message" : "Succesfully canceled appointment"}
+        else:
+            raise HTTPException(400, "Couldn't cancel appointment")

@@ -24,3 +24,10 @@ async def get_appointments_for_doctors(current_user : dict = Depends(AuthService
 )
 async def get_appointments_for_doctors(current_user : dict = Depends(AuthService.get_current_user)):
     return await AppointmentService.get_appointments_for_patient(current_user["email"],current_user["role"])
+
+@router.put(
+    "/appointments/cancel/{appointment_id}",
+    summary="Cancel appointment by id"
+)
+async def cancel_appointments(appointment_id : str, current_user : dict = Depends(AuthService.get_current_user)):
+    return await AppointmentService.cancel_appointment(appointment_id, current_user["email"])

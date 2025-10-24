@@ -1,6 +1,6 @@
 // API utility functions for making authenticated requests
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export interface ApiResponse<T = any> {
   data?: T;
@@ -34,6 +34,8 @@ export const apiRequest = async <T = any>(
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      // 'Access-Control-Allow-Origin': 'http://localhost:8080',
+      // 'Access-Control-Allow-Credentials': 'true',
       ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     },
@@ -41,6 +43,7 @@ export const apiRequest = async <T = any>(
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    console.log(response);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

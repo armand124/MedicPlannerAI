@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useDoctors } from '@/hooks/useDoctors';
+import { useForms } from '@/hooks/useForms';
 import { useQuestionnaire } from '@/hooks/useQuestionnaire';
 import type { QuestionnaireSpec } from '@/types';
 import { Calendar, Clock, FileText, Plus } from 'lucide-react';
@@ -18,7 +19,8 @@ import { format } from 'date-fns';
 const PatientDashboard = () => {
   const { user } = useAuth();
   const { appointments, createAppointment, isLoading } = useAppointments(user?.first_name, 'patient');
-  const { doctors, isLoading: doctorsLoading, specializations } = useDoctors();
+  const { forms, isLoading: formsLoading, specializations  } = useForms();
+  const { doctors, isLoading: doctorsLoading} = useDoctors();
   const { spec, isLoading: specLoading, fetchSpec } = useQuestionnaire();
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
@@ -197,8 +199,9 @@ const PatientDashboard = () => {
                          </div>
                        ) : spec ? (
                          <div className="space-y-4">
-                           {spec.questions.map(q => (
-                             <div key={q.questionId} className="space-y-2">
+                           {forms.map(f => (
+                              f.questions.map(q => (
+                                <div key={q.questionId} className="space-y-2">
                                <Label>{q.question}</Label>
                                {q.hasOptions && q.options ? (
                                  <Select
@@ -219,10 +222,11 @@ const PatientDashboard = () => {
                                    value={answers[q.questionId] ?? ''}
                                    onChange={(e) => setAnswers(prev => ({ ...prev, [q.questionId]: e.target.value }))}
                                    required
-                                   placeholder={q.value === 'number' ? 'Enter a number or text' : 'Enter your answer'}
+                                   placeholder={q.type === 'number' ? 'Enter a number' : 'Enter your answer'}
                                  />
                                )}
                              </div>
+                              ))
                            ))}
                          </div>
                        ) : null

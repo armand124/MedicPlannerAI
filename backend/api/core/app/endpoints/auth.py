@@ -24,10 +24,3 @@ async def register_pacient(user : PacientRegistrationRequest):
 )
 async def login_user(user : UserLoginRequest):
     return await AuthService.login_user(user.email, user.password)
-
-@router.get(
-    "/profile",
-    summary="Get user information from token"
-)
-async def profile(current_user : dict = Depends(AuthService.get_current_user)):
-    return current_user

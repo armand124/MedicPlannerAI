@@ -70,11 +70,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       let data;
       if (role === 'doctor') {
+        console.log("intra aici");
         data = await authApi.register_medic(email, password, first_name, last_name, specialization);
+        console.log("se termina aici");
       }
       else {
         data = await authApi.register_pacient(email, password, first_name, last_name);
       }
+      console.log(data);
       
 
       // Store token and user data

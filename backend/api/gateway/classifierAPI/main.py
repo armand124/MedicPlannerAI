@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from app.endpoints import prediction
 from app.endpoints import appointment
 from app.endpoints import log 
+from fastapi.middleware.cors import CORSMiddleware
 from app.modules.log.model import LogEntry
 import datetime 
 from app.modules.log.service import LogService
@@ -23,6 +24,14 @@ async def lifespan(app : FastAPI):
     await Database.disconnectFromDatabase()
 
 app = FastAPI(lifespan=lifespan)
+
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",  
+    "http://127.0.0.1:5173",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080"
+]
 
 @app.middleware("http")
 async def function_func(request : Request , callable):
@@ -63,6 +72,14 @@ async def function_func(request : Request , callable):
     await LogService.insert_log(entry , user_info)
 
     return result
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,          
+    allow_credentials=True,
+    allow_methods=["*"],       
+    allow_headers=["*"],             
+)
 
 #Endpoints
 app.include_router(prediction.router)

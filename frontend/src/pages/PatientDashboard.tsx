@@ -10,18 +10,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useDoctors } from '@/hooks/useDoctors';
 import { useForms } from '@/hooks/useForms';
-import { useQuestionnaire } from '@/hooks/useQuestionnaire';
-import type { QuestionnaireSpec } from '@/types';
 import { Calendar, Clock, FileText, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { api, customApi, ApiError } from '@/lib/api';
 
 const PatientDashboard = () => {
   const { user } = useAuth();
   const { appointments, createAppointment, isLoading } = useAppointments(user?.first_name, 'patient');
   const { forms, isLoading: formsLoading, specializations  } = useForms();
-  const { doctors, isLoading: doctorsLoading} = useDoctors();
-  const { spec, isLoading: specLoading, fetchSpec } = useQuestionnaire();
+  const { doctors, isLoading: doctorsLoading, setDoctors} = useDoctors();
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
 
@@ -48,31 +46,34 @@ const PatientDashboard = () => {
   });
 
   const [selectedSpecialization, setSelectedSpecialization] = useState('');
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  // use a generic type for selectedForm (forms hook controls the shape)
+  const [selectedForm, setSelectedForm] = useState<any | null>(null);
+  // answers can be number | string | boolean depending on question/type/optionsValue
+  const [answers, setAnswers] = useState<Record<number, number | string | boolean>>({});
+  // selected doctor id chosen by the patient from the doctors list
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string>('');
 
-  const validateQuestionnaire = (): string | null => {
-    if (!spec) return 'Please select a specialization and wait for the form to load.';
-    for (const q of spec.questions) {
-      const v = (answers[q.questionId] ?? '').trim();
-      if (!v) return 'Please fill in all required fields.';
-      if (!q.hasOptions && q.value === 'number') {
-        // accept int, float, or string per spec, but ensure not empty (already checked)
-        // No extra validation since strings are allowed
+  const validateForm = (): string | null => {
+    if (!selectedSpecialization) return null;
+    if (!selectedForm) return 'Please select a specialization and wait for the form to load.';
+    for (const q of selectedForm.questions) {
+      const v = answers[q.questionId];
+      if (v === undefined || v === null || v === '') return 'Please fill in all required fields.';
+      if (q.type === 'number') {
+        if (typeof v !== 'number' || Number.isNaN(v)) return 'Please enter a valid number.';
       }
-      if (q.hasOptions && q.options && !q.options.includes(v)) {
-        return 'Please select a valid option.';
-      }
+      // if hasOptions we expect a mapped value (usually number) — additional checks can be added if needed
     }
     return null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const err = validateQuestionnaire();
-    if (err) {
-      toast({ title: 'Form incomplete', description: err, variant: 'destructive' });
-      return;
-    }
+    //const err = validateForm();
+    // if (err) {
+    //   toast({ title: 'Form incomplete', description: err, variant: 'destructive' });
+    //   return;
+    // }
     
     if (doctors.length === 0) {
       toast({
@@ -85,30 +86,13 @@ const PatientDashboard = () => {
     
     try {
       // Use the first available doctor for now
-      const selectedDoctor = doctors[0];
-      
-      await createAppointment({
-        patientId: user?.first_name || '',
-        patientName: user?.first_name || '',
-        patientEmail: user?.first_name || '',
-        patientPhone: formData.phone,
-        doctorId: selectedDoctor._id,
-        doctorName: selectedDoctor.name,
-        date: new Date(formData.date),
-        startTime: formData.time,
-        endTime: calculateEndTime(formData.time, 30), // 30-minute appointments
-        status: 'scheduled',
-        reason: formData.reason,
-        symptoms: formData.symptoms,
-        questionnaire: spec ? {
-          specialization: spec.specialization,
-          questions: spec.questions.map(q => ({
-            questionId: q.questionId,
-            value: answers[q.questionId] ?? ''
-          }))
-        } : undefined,
-      });
-      
+      // prefer the doctor selected by the patient; fallback to first available
+      const selectedDoctor = doctors.find((d: any) => d._id === selectedDoctorId) ?? doctors[0];
+      console.log(selectedDoctor);
+      console.log(answers);
+
+      const resp = await customApi.post<string>('http://localhost:6969', '/get-results/' + selectedForm.model_eval_id, answers);
+      console.log(resp);
       toast({
         title: 'Appointment requested',
         description: 'Your appointment request has been submitted successfully.',
@@ -116,7 +100,9 @@ const PatientDashboard = () => {
       
       setFormData({ date: '', time: '', reason: '', symptoms: '', phone: '' });
       setSelectedSpecialization('');
+      setSelectedForm(null);
       setAnswers({});
+      setSelectedDoctorId('');
       setShowForm(false);
     } catch (error) {
       toast({
@@ -177,7 +163,12 @@ const PatientDashboard = () => {
                          onValueChange={(value) => {
                            setSelectedSpecialization(value);
                            setAnswers({});
-                           if (value) fetchSpec(value);
+                           // reset any previously selected doctor when specialization changes
+                           setSelectedDoctorId('');
+                           // pass the specialization string to the hook so it can fetch filtered doctors
+                           setDoctors(value);
+                           const found = forms.find(f => f.specialization === value) ?? null;
+                           setSelectedForm(found);
                          }}
                        >
                          <SelectTrigger>
@@ -193,102 +184,97 @@ const PatientDashboard = () => {
 
                      {/* Dynamic questionnaire fields */}
                      {selectedSpecialization && (
-                       specLoading ? (
+                       formsLoading ? (
                          <div className="flex justify-center py-4">
                            <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                          </div>
-                       ) : spec ? (
+                       ) : selectedForm ? (
                          <div className="space-y-4">
-                           {forms.map(f => (
-                              f.questions.map(q => (
-                                <div key={q.questionId} className="space-y-2">
+                           {selectedForm.questions.map((q: any) => (
+                             <div key={q.questionId} className="space-y-2">
                                <Label>{q.question}</Label>
                                {q.hasOptions && q.options ? (
                                  <Select
-                                   value={answers[q.questionId] ?? ''}
-                                   onValueChange={(val) => setAnswers(prev => ({ ...prev, [q.questionId]: val }))}
+                                   value={(() => {
+                                     const cur = answers[q.questionId];
+                                     // show label if available; otherwise stringify the stored value
+                                     if (q.optionsMap && cur !== undefined) {
+                                       const found = q.optionsMap.find((o: any) => o.value === cur);
+                                       return found ? found.label : String(cur ?? '');
+                                     }
+                                     return String(cur ?? '');
+                                   })()}
+                                   onValueChange={(val) => {
+                                     // Inline mapping: prefer optionsMap, fallback to options/optionsValue arrays
+                                     const mapped = (() => {
+                                       if (Array.isArray(q.optionsMap) && q.optionsMap.length > 0) {
+                                         const f = q.optionsMap.find((o: any) =>
+                                           o.label === val || (typeof o.label === 'string' && o.label.toLowerCase() === String(val).toLowerCase())
+                                         );
+                                         if (f) return f.value;
+                                       }
+                                       if (Array.isArray(q.options) && Array.isArray(q.optionsValue)) {
+                                         const idx = q.options.findIndex((opt: string) =>
+                                           opt === val || (typeof opt === 'string' && opt.toLowerCase() === String(val).toLowerCase())
+                                         );
+                                         if (idx !== -1 && idx < q.optionsValue.length) return q.optionsValue[idx];
+                                       }
+                                       // fallback: store raw label
+                                       return val;
+                                     })();
+                                     setAnswers(prev => ({ ...prev, [q.questionId]: mapped }));
+                                   }}
                                  >
                                    <SelectTrigger>
                                      <SelectValue placeholder="Select an option" />
                                    </SelectTrigger>
                                    <SelectContent>
-                                     {q.options.map((opt, idx) => (
+                                     {q.options.map((opt: string, idx: number) => (
                                        <SelectItem key={`${q.questionId}-${idx}`} value={opt}>{opt}</SelectItem>
                                      ))}
                                    </SelectContent>
                                  </Select>
                                ) : (
                                  <Input
+                                   type={q.type === 'number' ? 'number' : 'text'}
                                    value={answers[q.questionId] ?? ''}
-                                   onChange={(e) => setAnswers(prev => ({ ...prev, [q.questionId]: e.target.value }))}
+                                   onChange={(e) => {
+                                     const v = e.target.value;
+                                     setAnswers(prev => ({
+                                       ...prev,
+                                       [q.questionId]: q.type === 'number' ? (v === '' ? '' : Number(v)) : v
+                                     }));
+                                   }}
                                    required
                                    placeholder={q.type === 'number' ? 'Enter a number' : 'Enter your answer'}
                                  />
                                )}
                              </div>
-                              ))
                            ))}
+                           {/* Doctor select populated from the doctors array */}
+                           <div key="doctor" className="space-y-2">
+                             <Label htmlFor="doctor">Doctor</Label>
+                             <Select
+                               value={selectedDoctorId}
+                               onValueChange={(val) => setSelectedDoctorId(val)}
+                             >
+                               <SelectTrigger>
+                                 <SelectValue placeholder={doctors.length ? 'Select a doctor' : 'No doctors available'} />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 {doctors.map((d: any) => (
+                                   <SelectItem key={d._id} value={d._id}>{d.first_name} {d.last_name}</SelectItem>
+                                 ))}
+                               </SelectContent>
+                             </Select>
+                           </div>
+                           
+                           
                          </div>
-                       ) : null
+                       ) : (
+                         <p className="text-sm text-muted-foreground">No form available for the selected specialization.</p>
+                       )
                      )}
-
-                     <div className="grid gap-4 sm:grid-cols-2">
-                       <div className="space-y-2">
-                         <Label htmlFor="date">Preferred Date</Label>
-                         <Input
-                           id="date"
-                           type="date"
-                           value={formData.date}
-                           onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                           required
-                         />
-                       </div>
-                       
-                       <div className="space-y-2">
-                         <Label htmlFor="time">Preferred Time</Label>
-                         <Input
-                           id="time"
-                           type="time"
-                           value={formData.time}
-                           onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                           required
-                         />
-                       </div>
-                     </div>
-
-                     <div className="space-y-2">
-                       <Label htmlFor="phone">Contact Phone</Label>
-                       <Input
-                         id="phone"
-                         type="tel"
-                         placeholder="(555) 123-4567"
-                         value={formData.phone}
-                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                         required
-                       />
-                     </div>
-
-                     <div className="space-y-2">
-                       <Label htmlFor="reason">Reason for Visit</Label>
-                       <Input
-                         id="reason"
-                         placeholder="e.g., Annual checkup, Follow-up"
-                         value={formData.reason}
-                         onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                         required
-                       />
-                     </div>
-
-                     <div className="space-y-2">
-                       <Label htmlFor="symptoms">Symptoms or Concerns</Label>
-                       <Textarea
-                         id="symptoms"
-                         placeholder="Describe your symptoms or health concerns..."
-                         value={formData.symptoms}
-                         onChange={(e) => setFormData({ ...formData, symptoms: e.target.value })}
-                         rows={4}
-                       />
-                     </div>
 
                      <Button type="submit" className="w-full">
                        Submit Request

@@ -67,6 +67,50 @@ export const apiRequest = async <T = any>(
   }
 };
 
+export const apiRequestCustomIp = async <T = any>(
+  Ip: string,
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> => {
+  const token = getAuthToken();
+  
+  const config: RequestInit = {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      // 'Access-Control-Allow-Origin': 'http://localhost:8080',
+      // 'Access-Control-Allow-Credentials': 'true',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers,
+    },
+  };
+
+  try {
+    const response = await fetch(`${Ip}${endpoint}`, config);
+    console.log(response);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new ApiError(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+        response.status
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    
+    // Network or other errors
+    throw new ApiError(
+      error instanceof Error ? error.message : 'Network error occurred',
+      0
+    );
+  }
+};
+
 // Auth-specific API functions
 export const authApi = {
   login: async (email: string, password: string) => {
@@ -121,6 +165,27 @@ export const api = {
   
   delete: <T = any>(endpoint: string) => 
     apiRequest<T>(endpoint, {
+      method: 'DELETE',
+    }),
+};
+
+export const customApi = {
+  get: <T = any>(Ip: string, endpoint: string) => apiRequestCustomIp<T>(Ip, endpoint),
+  
+  post: <T = any>(Ip: string, endpoint: string, data?: any) => 
+    apiRequestCustomIp<T>(Ip, endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    }),
+  
+  put: <T = any>(Ip: string, endpoint: string, data?: any) => 
+    apiRequestCustomIp<T>(Ip, endpoint, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    }),
+  
+  delete: <T = any>(Ip: string, endpoint: string) => 
+    apiRequestCustomIp<T>(Ip, endpoint, {
       method: 'DELETE',
     }),
 };

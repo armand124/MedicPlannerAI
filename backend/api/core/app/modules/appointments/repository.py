@@ -131,6 +131,7 @@ class AppointmentRepository:
                 "$project": {   
                     "_id" : 1,                         
                     "date": 1,
+                    "status" : 1,
                     "doctor_first_name": "$doctor_info.first_name", 
                     "doctor_last_name": "$doctor_info.last_name",
                     "doctor_specialization" : "$doctor_info.specialization"

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 class AppointmentRequest(BaseModel):
-    id_med : str 
+    doctor_id : str 
     prior : str 

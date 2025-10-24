@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     DB_MODEL_PATH_COLLECTION : str
     DB_MEDS_COLLECTION : str 
     DB_LOGS_COLLECTION : str
+    DB_APPOINTMENTS_COLLECTION : str
     #Security
     JWT_ALGORITHM: str
     SECRET_KEY: str

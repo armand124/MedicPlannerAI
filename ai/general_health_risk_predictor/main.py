@@ -8,6 +8,9 @@ import joblib
 dataset_path = "dataset.csv"
 
 df = pd.read_csv(dataset_path)
+
+df.drop("id", axis = 1)
+
 df['gender'] = df['gender'].map({'Female': 0, 'Male': 1})
 
 X = df.drop("disease_risk", axis=1)

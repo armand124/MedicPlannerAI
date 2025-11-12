@@ -146,18 +146,6 @@ npm start
 
 ---
 
-## Contributing
-
-We welcome contributions from the community. Please fork the repository and submit a pull request for any new features or bug fixes.
-
----
-
-## License
-
-This project is licensed under the MIT License.
-
----
-
 ## Hackathon
 
 Created for **Heaven Solutions Hackathon**.

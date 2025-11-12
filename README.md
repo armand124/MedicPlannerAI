@@ -64,15 +64,9 @@ REACT_APP_AI_API_URL=http://localhost:8001
 
 ## Installation
 
-1. Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/medic-planner-ai.git
-cd medic-planner-ai
-```
-
+1. Clone the repository
 2. Backend setup:
-
+   
 ```bash
 cd backend
 # Install dependencies
